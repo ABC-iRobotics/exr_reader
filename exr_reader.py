@@ -2,6 +2,7 @@ import OpenEXR
 from dataclasses import dataclass
 from typing import Any
 from array import array
+import copy
 
 
 @dataclass
@@ -72,7 +73,7 @@ class OpenEXRReader():
     filepath: str
     channel_string: str
     loader: Any = None
-    resolution: tuple = (1080,1920)
+    resolution: tuple[int,int] = (1080,1920)
     view_layer_name: str = 'BAT_ViewLayer'
 
 
@@ -117,7 +118,7 @@ class OpenEXRReader():
         self.inputfile.close()
 
 
-    def _parse_channel_string(self, channel_string: str) -> tuple:
+    def _parse_channel_string(self, channel_string: str) -> tuple[list[str],list[str]]:
         '''Parse the channel string and return a tuple containing the list of channel names and channel keys
 
         Args:
@@ -182,7 +183,7 @@ class OpenEXRReader():
         return channel_map
 
 
-    def _load_channels(self, channel_names: list, channel_keys:list) -> None:
+    def _load_channels(self, channel_names: list[str], channel_keys:list[str]) -> None:
         '''Load given channels in self.channels dictionary
 
         Args:
@@ -199,4 +200,5 @@ class OpenEXRReader():
                 if not self.loader:
                     self.channels[channel_key] = array('f', channel).tolist()
                 else:
-                    self.channels[channel_key] = self.loader.frombuffer(channel, dtype=self.loader.float32)
+                    ch_copy = bytearray(channel)
+                    self.channels[channel_key] = self.loader.frombuffer(ch_copy, dtype=self.loader.float32)
