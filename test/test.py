@@ -34,7 +34,7 @@ if __name__=='__main__':
         with OpenEXRReader(filepath_missing, chstr) as exr:
             print('Data type of channel with default loader: {}\n'.format(type(exr.d)))
     except TypeError:
-        print('Cannot load channel(s) with key(s) "{}" from file {}, because the channel is missing!'.format(chstr, filepath_missing))
+        print('Cannot load channel(s) with key(s) "{}" from file {}, because the channel is missing!\n'.format(chstr, filepath_missing))
 
 
     import numpy as np

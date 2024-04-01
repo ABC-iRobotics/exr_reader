@@ -35,7 +35,6 @@ class OpenEXRReader():
      - channel_string: String describing which channels to load
      - loader: Module to use to load the channel data (Values types will depend on the loader!)
      - resolution: Resolution of the image (height,width)
-     - view_layer_name: Name of the ViewLayer used by BAT inside Blender
 
     Usage:
     with OpenEXRReader(PATH, CHSTR) as exr:
@@ -74,7 +73,6 @@ class OpenEXRReader():
     channel_string: str
     loader: Any = None
     resolution: tuple[int,int] = (1080,1920)
-    view_layer_name: str = 'BAT_ViewLayer'
 
 
     def __post_init__(self):
@@ -136,23 +134,23 @@ class OpenEXRReader():
         for char in channel_string:
             # Map characters to channel names
             if char == 'c':
-                channel_selector = '.IndexOB.X'
+                channel_selector = 'ClassID.V'
             if char == 'i':
-                channel_selector = '.IndexMA.X'
+                channel_selector = 'InstanceID.V'
             if char == 'r':
-                channel_selector = '.Combined.R'
+                channel_selector = 'Image.R'
             if char == 'g':
-                channel_selector = '.Combined.G'
+                channel_selector = 'Image.G'
             if char == 'b':
-                channel_selector = '.Combined.B'
+                channel_selector = 'Image.B'
             if char == 'a':
-                channel_selector = '.Combined.A'
+                channel_selector = 'Image.A'
             if char == 'd':
-                channel_selector = '.Depth.Z'
+                channel_selector = 'Depth.V'
             if char == 'n':
-                channel_selector = '.Normal'
+                channel_selector = 'Normal'
             if char == 'f':
-                channel_selector = '.Vector'
+                channel_selector = 'Flow'
 
             # Store character if it is the start of a two character expression
             if char in self.two_char_expr_starts:
@@ -179,7 +177,7 @@ class OpenEXRReader():
                 channel_selector = ''
                 char_store = ''
 
-        channel_map = ([self.view_layer_name + c for c in channel_names], channel_keys)
+        channel_map = (channel_names, channel_keys)
         return channel_map
 
 
