@@ -57,6 +57,9 @@ class OpenEXRReader():
      nz: The Z component of the surface normals
      fx: The X components of the optical flow vector
      fy: fx: The X components of the optical flow vector
+     mx: The X (horizontal/ along width) component of the DistortionMap
+     my: The Y (vertical/ along height) component of the DistortionMap
+     mz: Binary map, signaling if a pixel is set in the DistortionMap
 
     (Others might also be possible, such as fz, nw etc., but those are not meaningful and will likely result in error)
 
@@ -79,7 +82,8 @@ class OpenEXRReader():
         '''This will be called at the end of the __init__ method
         '''
         self.channels = {}
-        self.two_char_expr_starts = 'nf'  # Collection of characters that start a two character expression
+        self.two_char_expr_starts = 'nfm'  # Collection of characters that start a two character expression
+        self.img_two_char_expr_starts = 'm'  # Collection of characters that map to image channels (accessed through R,G,B,A instead of X,Y,Z,W)
 
         # Parse channel string to know which channels to load
         self.channel_names, self.channel_keys = self._parse_channel_string(self.channel_string)
@@ -151,6 +155,8 @@ class OpenEXRReader():
                 channel_selector = 'Normal'
             if char == 'f':
                 channel_selector = 'Flow'
+            if char == 'm':
+                channel_selector = 'DistortionMap'
 
             # Store character if it is the start of a two character expression
             if char in self.two_char_expr_starts:
@@ -158,13 +164,25 @@ class OpenEXRReader():
             # Finish two character expression
             elif char_store:
                 if char == 'x':
-                    channel_selector += '.X'
+                    if not char_store in self.img_two_char_expr_starts:
+                        channel_selector += '.X'
+                    else:
+                        channel_selector += '.G'  # Horizontal coordinates are stored in the second channel because images are handled as (height,width,channels) shaped arrays
                 if char == 'y':
-                    channel_selector += '.Y'
+                    if not char_store in self.img_two_char_expr_starts:
+                        channel_selector += '.Y'
+                    else:
+                        channel_selector += '.R'  # Vertical coordinates are stored in the first channel because images are handled as (height,width,channels) shaped arrays
                 if char == 'z':
-                    channel_selector += '.Z'
+                    if not char_store in self.img_two_char_expr_starts:
+                        channel_selector += '.Z'
+                    else:
+                        channel_selector += '.B'
                 if char == 'w':
-                    channel_selector += '.W'
+                    if not char_store in self.img_two_char_expr_starts:
+                        channel_selector += '.W'
+                    else:
+                        channel_selector += '.A'
                 
                 channel_names.append(channel_selector)
                 channel_keys.append(char_store+char)
