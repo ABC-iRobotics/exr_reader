@@ -55,8 +55,10 @@ class OpenEXRReader():
      nx: The X component of the surface normals
      ny: The Y component of the surface normals
      nz: The Z component of the surface normals
-     fx: The X components of the optical flow vector
-     fy: fx: The X components of the optical flow vector
+     fx: The X components of the forward optical flow vector (from current frame to next)
+     fy: The Y components of the forward optical flow vector (from current frame to next)
+     fz: The X components of the backward optical flow vector (from current frame to previous)
+     fw: The Y components of the backward optical flow vector (from current frame to previous)
      mx: The X (horizontal/ along width) component of the DistortionMap
      my: The Y (vertical/ along height) component of the DistortionMap
      mz: Binary map, signaling if a pixel is set in the DistortionMap
@@ -83,7 +85,7 @@ class OpenEXRReader():
         '''
         self.channels = {}
         self.two_char_expr_starts = 'nfm'  # Collection of characters that start a two character expression
-        self.img_two_char_expr_starts = 'm'  # Collection of characters that map to image channels (accessed through R,G,B,A instead of X,Y,Z,W)
+        self.img_two_char_expr_starts = 'fm'  # Collection of characters that map to image channels (accessed through R,G,B,A instead of X,Y,Z,W)
 
         # Parse channel string to know which channels to load
         self.channel_names, self.channel_keys = self._parse_channel_string(self.channel_string)
